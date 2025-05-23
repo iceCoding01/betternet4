@@ -155,9 +155,9 @@
 
     @push('scripts')
         <script>
-            const billingData = @json($billingData);
-            const paymentData = @json($paymentData);
-            const labels = Array.from({ length: billingData.length }, (_, i) => (i + 1).toString());
+            const billingData = @json($billingData ?? []);
+            const paymentData = @json($paymentData ?? []);
+            const labels = Array.from({ length: (billingData && billingData.length) ? billingData.length : 0 }, (_, i) => (i + 1).toString());
 
             const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
             new Chart(monthlyCtx, {
@@ -190,9 +190,9 @@
                 }
             });
 
-            const dailyBillingData = @json($dailyBillingData);
-            const dailyPaymentData = @json($dailyPaymentData);
-            const dailyLabels = Array.from({ length: dailyBillingData.length }, (_, i) => (i + 1).toString());
+            const dailyBillingData = @json($dailyBillingData ?? []);
+            const dailyPaymentData = @json($dailyPaymentData ?? []);
+            const dailyLabels = Array.from({ length: (dailyBillingData && dailyBillingData.length) ? dailyBillingData.length : 0 }, (_, i) => (i + 1).toString());
 
             const dailyCtx = document.getElementById('dailyChart').getContext('2d');
             new Chart(dailyCtx, {

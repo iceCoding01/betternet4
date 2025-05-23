@@ -13,7 +13,7 @@ class DashboardController extends Controller
 {
     public function __invoke()
     {
-        if (auth()->user()->isUser()) {
+        if (auth()->check() && auth()->user()->isUser()) {
             $user = User::with('detail')->where('id', auth()->id())->firstOrFail();
             return view('dashboard2', compact('user'));
         }
@@ -23,7 +23,7 @@ class DashboardController extends Controller
         $totalPayments  = Payment::sum('package_price');
         $totalUsers = User::where('role', 'user')->count();
         $openTickets = Ticket::where('status', 'Open')->count();
-        $recentUsers = User::with('detail')->where('role', 'user')->with(['billing', 'detail'])->latest()->take(5)->get();
+        $recentUsers = User::with(['detail', 'billing'])->where('role', 'user')->latest()->take(5)->get();
         $recentPayments = Payment::with('user')->latest()->take(5)->get();
         $recentTickets = Ticket::latest()->take(5)->get();
         $paymentsThisMonth = Payment::whereMonth('created_at', now()->month)->sum('package_price');
@@ -46,14 +46,14 @@ class DashboardController extends Controller
                 return $billing->created_at->format('F');
             })->map(function ($billings) {
                 return $billings->sum('package_price');
-            });
+            })->values()->toArray();
 
         $paymentData = Payment::whereYear('created_at', Carbon::now()->year)
             ->get()->groupBy(function ($payment) {
                 return $payment->created_at->format('F');
             })->map(function ($payments) {
                 return $payments->sum('package_price');
-            });
+            })->values()->toArray();
 
         // Fetch the daily billing and payment data for the current month
         $daysInMonth = Carbon::now()->daysInMonth;
